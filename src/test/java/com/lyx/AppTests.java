@@ -19,13 +19,8 @@ class AppTests
     private RestTemplate restTemplate;
 
 	@Test
-	void contextLoads()
+	public void test1()
     {
-        functionService.listNeedExportOrderMaster("");
+        functionService.listNeedExportOrderMaster("token=ZmI4ZTgzNDUtMmM4NC00Y2ZhLWI5MTEtMjE3NzViMmY2NDJi");
 	}
-
-	@Test
-	void test1()
-    {
-    }
 }
