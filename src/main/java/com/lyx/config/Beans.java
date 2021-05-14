@@ -12,10 +12,4 @@ public class Beans
     {
         return new RestTemplate();
     }
-
-    @Bean("yiqiApi")
-    public YiqiApi getYiqiApi()
-    {
-        return new YiqiApi();
-    }
 }
