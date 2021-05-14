@@ -1,7 +1,9 @@
 package com.lyx.config;
 
+import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.lyx.common.CommonResult;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.*;
@@ -11,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 /**
  * 易鑫平台调用工具
  */
+@Slf4j
 @Component("invokeYixinConfig")
 public class InvokeYixinConfig
 {
@@ -29,22 +32,31 @@ public class InvokeYixinConfig
         HttpHeaders mHeaders = new HttpHeaders();
         mHeaders.setContentType(MediaType.APPLICATION_JSON);
         mHeaders.add("Cookie", tokenStr);
+
         HttpEntity<String> entity = new HttpEntity<>(json, mHeaders);
-        JsonNode rep;
+
+        ResponseEntity<JsonNode> rep;
         try
         {
-            rep = restTemplate.postForObject(url, entity, JsonNode.class);
+            rep = restTemplate.postForEntity(host + url, entity, JsonNode.class);
         }
         catch (Exception e)
         {
+            log.error("出现异常：{}", e.getMessage());
             return CommonResult.successMsg("出现异常：" + e.getMessage());
         }
-
-        if (!rep.get("success").asBoolean())
+        if (!rep.getStatusCode().is2xxSuccessful())
         {
-            return CommonResult.errorMsg(rep.get("message").asText());
+            log.error("请求易鑫接口返回不成功报文，状态码：{}", rep.getStatusCodeValue());
+            return CommonResult.errorMsg(StrUtil.format("请求易鑫接口返回不成功报文，状态码：{}", rep.getStatusCodeValue()));
         }
 
-        return CommonResult.successData(rep.get("data"));
+        JsonNode body = rep.getBody();
+        if (!body.get("success").asBoolean())
+        {
+            return CommonResult.errorMsg(body.get("message").asText());
+        }
+
+        return CommonResult.successData(body.get("data"));
     }
 }
