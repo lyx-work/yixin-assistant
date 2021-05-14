@@ -1,5 +1,6 @@
 package com.lyx.entity;
 
+import cn.hutool.core.date.DateTime;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -7,150 +8,95 @@ import java.util.Date;
 
 /**
  * excel 导出数据实体
- * 核后委托清收 与 委托清收 导出
  */
 @Data
 @Accessors(chain = true)
 public class ExcelEntity
 {
     /**
-     * 个案序列号
-     * 在一汽中就是合同编号
+     * 外访类型
      */
-    private String bargainNo;
+    private String visitType;
+
+    private String pB;
+    private String pC;
+
 
     /**+
-     * 委托日期
-     */
-    private Date beginDate;
-
-    /**
-     * 预计退案日期
-     */
-    private Date endDate;
-
-    /**
-     * 姓名
-     */
-    private String name;
-
-    /**
      * 合同编号
-     * pX 为excel中隐藏的列
      */
+    private String  contractCode;
+
     private String pE;
 
-    /**
-     * 证件号
-     * 就是身份证号码
+    /**+
+     * 所属区域
      */
-    private String idCard;
+    private String belongArea;
 
-    /**
-     * 委案金额
+
+    /**+
+     * 服务对象
      */
-    private Double liquidateSubject;
+    private String serviceOb;
 
-    /**
-     * 逾期天数
-     */
-    private Integer overDay;
-
-    /**
-     * 逾期金额
-     */
-    private Double overMoney;
-
+    private String pH;
+    private String pI;
     private String pJ;
     private String pK;
-    private String pL;
+
+    /**
+     * 车牌号
+     */
+    private String carCode;
+
     private String pM;
     private String pN;
     private String pO;
     private String pP;
     private String pQ;
     private String pR;
-
-    /**
-     * 本人手机
-     */
-    private String phoneNumber;
-
+    private String pS;
     private String pT;
     private String pU;
-    private String pV;
-    private String pW;
-    private String pX;
-    private String pY;
-    private String pZ;
-    private String pAA;
 
     /**
-     * 车型
+     * 被访人姓名
      */
-    private String carKind;
+    private String toVisitName;
 
     /**
-     * 牌照号
+     * 地址类型
      */
-    private String carNumber;
+    private String addressType;
 
-    private String pAD;
+    /**
+     * 省
+     */
+    private String province;
+
+    /**
+     * 市
+     */
+    private String city;
+
+    /**
+     * 区
+     */
+    private String area;
+
+    /**
+     * 详细地址
+     */
+    private String detailAddress;
+
+    /**
+     * 委案时间
+     */
+    private DateTime giveTime;
+
     private String pAE;
     private String pAF;
     private String pAG;
     private String pAH;
-
-    /**
-     * 单位地址
-     */
-    private String workAddress;
-
-    /**
-     * 家庭地址
-     */
-    private String familyAddress;
-
-    private String pAK;
-    private String pAL;
-    private String pAM;
-    private String pAN;
-    private String pAO;
-    private String pAP;
-    private String pAQ;
-    private String pAR;
-
-    /**
-     * 联系人2姓名
-     */
-    private String link2Name;
-
-    /**
-     * 联系人2关系
-     */
-    private String link2relation;
-
-    /**
-     * 联系人2手机
-     */
-    private String link2phone;
-
-    /**
-     * 联系人3姓名
-     */
-    private String link3Name;
-
-    /**
-     * 联系人3关系
-     */
-    private String link3relation;
-
-    /**
-     * 联系人3手机
-     */
-    private String link3phone;
-
-    private String pAY;
-    private String pAZ;
-    private String pBA;
 }
