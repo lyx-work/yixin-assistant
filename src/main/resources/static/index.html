@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+        <title>首页</title>
+
+        <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+        <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.5.3/css/bootstrap.min.css" rel="stylesheet"/>
+        <style>
+            #auth,#status,#function
+            {
+                border: black 1px solid;
+                padding: 3px;
+            }
+            .hrSp
+            {
+                border: 0px;
+                border-bottom:1px dashed;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <div class="container">
+            <div id="auth">
+                <kbd>认证模块</kbd><br/><br/>
+                <input id="userName" list="userList" placeholder="选择要登录的账号">
+                <datalist id="userList">
+                    <option value="Q07652A">
+                    <option value="Q07600A">
+                    <option value="Q07670A">
+                    <option value="Q07651A">
+                    <option value="Q07637F">
+                </datalist>
+
+                <br/><br/>
+
+                <div id="picBox">
+                    <img id="pic"/>
+                </div>
+                <input id="kaptcha" type="text" placeholder="输入验证码">
+
+                <br/><br/>
+
+                <button class="btn btn-success" id="sub">认证</button>
+            </div>
+
+            <br/><br/>
+
+            <div id="status">
+                <kbd>状态指示模块</kbd><br/><br/>
+                状态：<span>未认证</span>
+            </div>
+
+            <br/><br/>
+
+            <div id="function">
+                <kbd>功能模块</kbd><br/><br/>
+                <div>导出 [核后委托清收] 中 [委托开始日期] 是某一天的数据</div>
+                <input id="day" type="date" placeholder="要导出哪一天的"/>
+                <button id="fun1" >导出</button>
+
+                <hr class="hrSp"/>
+
+                <div>导出 [委托清收] 中 [委托开始日期] 是某一天的数据</div>
+                <input id="mDay" type="date" placeholder="要导出哪一天的"/>
+                <button id="fun2" >导出</button>
+
+            </div>
+
+            <br/><br/>
+            <hr color="gainsboro"/>
+            技术支持：李艳兴<br/>
+            <img src="./workwx.png" width="30%"/>
+        </div>
+
+        <script src="./index.js"></script>
+    </body>
+</html>
