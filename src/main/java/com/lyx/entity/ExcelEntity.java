@@ -4,8 +4,6 @@ import cn.hutool.core.date.DateTime;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.util.Date;
-
 /**
  * excel 导出数据实体
  */
@@ -89,6 +87,9 @@ public class ExcelEntity
      * 详细地址
      */
     private String detailAddress;
+
+    private String pAB;
+    private String pAC;
 
     /**
      * 委案时间

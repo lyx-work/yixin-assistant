@@ -1,19 +1,28 @@
 package com.lyx.process.service;
 
+import cn.afterturn.easypoi.excel.ExcelExportUtil;
+import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.file.FileReader;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.lyx.common.CommonResult;
 import com.lyx.config.InvokeYixinConfig;
 import com.lyx.entity.ExcelEntity;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -41,9 +50,35 @@ public class FunctionServiceImpl implements FunctionService
             excelEntityList.addAll(this.orderMaster2ExcelEntityList(el, tokenStr));
         }
         Map<String, Object> excelData = CollUtil.newHashMap();
-        excelData.put("ocList", excelData);
+        excelData.put("ocList", excelEntityList);
 
-        return null;
+        // ②写入数据，生成新的文件
+        TemplateExportParams excelTemplate = new TemplateExportParams("/Users/lyx/my-dir/projects/liqi-assit/src/main/resources/template.xlsx");
+        Workbook workbook = ExcelExportUtil.exportExcel(excelTemplate, excelData);
+        File newExcelFile = FileUtil.file(FileUtil.getUserHomePath() + "/" + IdUtil.simpleUUID() + ".xlsx");
+        try
+        (
+            BufferedOutputStream outputStream = FileUtil.getOutputStream(newExcelFile)
+        )
+        {
+            workbook.write(outputStream);
+        }
+        catch (Exception e)
+        {
+            return ResponseEntity.ok()
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .body(CommonResult.errorMsg(StrUtil.format("出现异常：{}", e.getMessage())));
+        }
+
+        // ③将生成的文件读取为二进制数据，并删除原文件
+        byte[] fileData = FileReader.create(newExcelFile).readBytes();
+        FileUtil.del(newExcelFile);
+
+        // ④下载文件
+        return ResponseEntity.ok()
+                            .header("Content-Disposition", "attachment;fileName=yixin-export.xlsx")
+                            .contentType(MediaType.MULTIPART_FORM_DATA)
+                            .body(fileData);
     }
 
 
@@ -51,7 +86,7 @@ public class FunctionServiceImpl implements FunctionService
     /**
      * 获得所有的需要导出的主单
      */
-    public List<JsonNode> listNeedExportOrderMasterList(String tokenStr)
+    private List<JsonNode> listNeedExportOrderMasterList(String tokenStr)
     {
         List<String> omIdList = this.listNeedExportOrderMasterIdList(tokenStr);
 
@@ -105,7 +140,7 @@ public class FunctionServiceImpl implements FunctionService
      * @param orderMaster https://www.notion.so/7ea874785dba4f039dc7f59ef3200207
      * @param tokenStr 认证token
      */
-    public List<ExcelEntity> orderMaster2ExcelEntityList(JsonNode orderMaster, String tokenStr)
+    private List<ExcelEntity> orderMaster2ExcelEntityList(JsonNode orderMaster, String tokenStr)
     {
         ArrayNode orderChildList = (ArrayNode) orderMaster.get("subTasks");
 
