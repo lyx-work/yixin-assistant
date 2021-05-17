@@ -1,26 +1,38 @@
 package com.lyx;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lyx.entity.ExcelEntity;
 import com.lyx.process.service.FunctionServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.web.client.RestTemplate;
+
+import java.io.IOException;
+import java.util.List;
 
 @SpringBootTest
 class AppTests
 {
     @Autowired
-    @Qualifier("functionServiceImpl")
     private FunctionServiceImpl functionService;
 
     @Autowired
-    @Qualifier("restTemplate")
-    private RestTemplate restTemplate;
+    private ObjectMapper oMapper;
 
 	@Test
-	public void test1()
+	public void test1() throws IOException
     {
-        functionService.listNeedExportOrderMaster("token=ZmI4ZTgzNDUtMmM4NC00Y2ZhLWI5MTEtMjE3NzViMmY2NDJi");
-	}
+        JsonNode orderMasterList = oMapper.readTree(FileUtil.file("/Users/lyx/my-dir/download/暂不要删除/orderMasterListHave2.json"));
+
+        List<ExcelEntity> excelEntityList = CollUtil.newArrayList();
+        for (JsonNode el : orderMasterList)
+        {
+            excelEntityList.addAll(functionService.orderMaster2ExcelEntityList(el, "token=M2RjYWU5ODctY2NjZS00MmQ4LWE0ODgtZDNkZTY3NjFhNjc0"));
+        }
+
+        System.out.println(oMapper.writeValueAsString(excelEntityList));
+    }
 }

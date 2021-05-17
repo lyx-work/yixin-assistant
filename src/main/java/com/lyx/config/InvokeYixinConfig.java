@@ -25,7 +25,7 @@ public class InvokeYixinConfig
 
     /**
      * 使用post调用易鑫接口，并携带json数据
-     * @return 易鑫返回的body转换成的
+     * @return 易鑫返回的body转换成的body，生成的body中的data是易鑫返回的body中的data
      */
     public CommonResult<JsonNode> post(String url, String tokenStr, String json)
     {

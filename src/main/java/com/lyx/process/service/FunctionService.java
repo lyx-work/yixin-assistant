@@ -4,5 +4,5 @@ import org.springframework.http.ResponseEntity;
 
 public interface FunctionService
 {
-    public ResponseEntity export(String tokenStr);
+    ResponseEntity export(String tokenStr);
 }
