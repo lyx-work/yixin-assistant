@@ -53,7 +53,7 @@ public class FunctionServiceImpl implements FunctionService
         excelData.put("ocList", excelEntityList);
 
         // ②写入数据，生成新的文件
-        TemplateExportParams excelTemplate = new TemplateExportParams("/Users/lyx/my-dir/projects/liqi-assit/src/main/resources/template.xlsx");
+        TemplateExportParams excelTemplate = new TemplateExportParams("template.xlsx");
         Workbook workbook = ExcelExportUtil.exportExcel(excelTemplate, excelData);
         File newExcelFile = FileUtil.file(FileUtil.getUserHomePath() + "/" + IdUtil.simpleUUID() + ".xlsx");
         try
