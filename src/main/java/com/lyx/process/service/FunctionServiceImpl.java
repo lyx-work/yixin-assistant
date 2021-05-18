@@ -11,6 +11,7 @@ import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.lyx.common.CommonResult;
+import com.lyx.common.Constant;
 import com.lyx.config.InvokeYixinConfig;
 import com.lyx.entity.ExcelEntity;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -42,7 +43,18 @@ public class FunctionServiceImpl implements FunctionService
     @Override
     public ResponseEntity export(String tokenStr)
     {
-        // ①获得需要导出到excel的数据
+        Constant.ASS_COUNT++;
+
+        // ①判断输入的tokenStr正不正确
+        CommonResult trueTokenRep = this.isTrueToken(tokenStr);
+        if (!trueTokenRep.isSuccess())
+        {
+            return ResponseEntity.ok()
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .body(trueTokenRep);
+        }
+
+        // ②获得需要导出到excel的数据
         List<JsonNode> orderMasterList = listNeedExportOrderMasterList(tokenStr);
         List<ExcelEntity> excelEntityList = CollUtil.newArrayList();
         for (JsonNode el : orderMasterList)
@@ -52,7 +64,7 @@ public class FunctionServiceImpl implements FunctionService
         Map<String, Object> excelData = CollUtil.newHashMap();
         excelData.put("ocList", excelEntityList);
 
-        // ②写入数据，生成新的文件
+        // ③写入数据，生成新的文件
         TemplateExportParams excelTemplate = new TemplateExportParams("template.xlsx");
         Workbook workbook = ExcelExportUtil.exportExcel(excelTemplate, excelData);
         File newExcelFile = FileUtil.file(FileUtil.getUserHomePath() + "/" + IdUtil.simpleUUID() + ".xlsx");
@@ -70,15 +82,28 @@ public class FunctionServiceImpl implements FunctionService
                                 .body(CommonResult.errorMsg(StrUtil.format("出现异常：{}", e.getMessage())));
         }
 
-        // ③将生成的文件读取为二进制数据，并删除原文件
+        // ④将生成的文件读取为二进制数据，并删除原文件
         byte[] fileData = FileReader.create(newExcelFile).readBytes();
         FileUtil.del(newExcelFile);
 
-        // ④下载文件
+        // ⑤下载文件
         return ResponseEntity.ok()
                             .header("Content-Disposition", "attachment;fileName=yixin-export.xlsx")
                             .contentType(MediaType.MULTIPART_FORM_DATA)
                             .body(fileData);
+    }
+
+
+
+    /**
+     * 判断输入的tokenStr正不正确
+     */
+    public CommonResult isTrueToken(String tokenStr)
+    {
+        String jsonData = "{\"applyNo\":\"\",\"customerName\":\"\",\"pickUpCarCompany\":\"\",\"pickUpCarManager\":\"\",\"applyBeginTime\":\"\",\"applyUser\":\"\",\"status\":\"wait_distribute\",\"index\":1,\"pageSize\":2}";
+        CommonResult<JsonNode> yixinBody = invokeYixin.post("/visit/outsource/inside/pageQuery", tokenStr, jsonData);
+
+        return yixinBody;
     }
 
 
@@ -109,7 +134,7 @@ public class FunctionServiceImpl implements FunctionService
      */
     private List<String> listNeedExportOrderMasterIdList(String tokenStr)
     {
-        String jsonData = "{\"applyNo\":\"\",\"customerName\":\"\",\"pickUpCarCompany\":\"\",\"pickUpCarManager\":\"\",\"applyBeginTime\":\"\",\"applyUser\":\"\",\"status\":\"wait_distribute\",\"index\":1,\"pageSize\":10}";
+        String jsonData = "{\"applyNo\":\"\",\"customerName\":\"\",\"pickUpCarCompany\":\"\",\"pickUpCarManager\":\"\",\"applyBeginTime\":\"\",\"applyUser\":\"\",\"status\":\"wait_distribute\",\"index\":1,\"pageSize\":300}";
         CommonResult<JsonNode> yixinBodyRep = invokeYixin.post("/visit/outsource/inside/pageQuery", tokenStr, jsonData);
 
         if (!yixinBodyRep.isSuccess())

@@ -6,7 +6,10 @@ import com.lyx.common.CommonResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -29,12 +32,11 @@ public class InvokeYixinConfig
      */
     public CommonResult<JsonNode> post(String url, String tokenStr, String json)
     {
+        // ①获取响应报文
         HttpHeaders mHeaders = new HttpHeaders();
         mHeaders.setContentType(MediaType.APPLICATION_JSON);
         mHeaders.add("Cookie", tokenStr);
-
         HttpEntity<String> entity = new HttpEntity<>(json, mHeaders);
-
         ResponseEntity<JsonNode> rep;
         try
         {
@@ -45,18 +47,25 @@ public class InvokeYixinConfig
             log.error("出现异常：{}", e.getMessage());
             return CommonResult.successMsg("出现异常：" + e.getMessage());
         }
-        if (!rep.getStatusCode().is2xxSuccessful())
+
+        // ②处理响应报文 302
+        if (rep.getStatusCode().is3xxRedirection())
         {
-            log.error("请求易鑫接口返回不成功报文，状态码：{}", rep.getStatusCodeValue());
-            return CommonResult.errorMsg(StrUtil.format("请求易鑫接口返回不成功报文，状态码：{}", rep.getStatusCodeValue()));
+            return CommonResult.errorMsg("输入的tokenStr错误");
         }
 
-        JsonNode body = rep.getBody();
-        if (!body.get("success").asBoolean())
+        // ③处理响应报文 200
+        if (rep.getStatusCode().is2xxSuccessful())
         {
-            return CommonResult.errorMsg(body.get("message").asText());
+            JsonNode body = rep.getBody();
+            if (!body.get("success").asBoolean())
+            {
+                return CommonResult.errorMsg(body.get("message").asText());
+            }
+
+            return CommonResult.successData(body.get("data"));
         }
 
-        return CommonResult.successData(body.get("data"));
+        return CommonResult.errorMsg(StrUtil.format("响应报文 {} ，没有针对这种情况进行处理", rep.getStatusCodeValue()));
     }
 }
