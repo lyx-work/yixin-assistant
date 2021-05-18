@@ -20,7 +20,7 @@
 	<!-- 坐标 -->
 	<groupId>lyx.com</groupId>
 	<artifactId>liqi-assit</artifactId>
-	<version>1.1</version>
+	<version>1.2</version>
 
 	<properties>
 		<java.version>1.8</java.version>
