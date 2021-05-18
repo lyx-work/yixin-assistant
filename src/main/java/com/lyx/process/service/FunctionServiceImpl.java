@@ -203,10 +203,22 @@ public class FunctionServiceImpl implements FunctionService
             excelEntity.setArea(this.getAreaByAddress(excelEntity.getProvince() + excelEntity.getCity() + excelEntity.getDetailAddress()));
             excelEntity.setGiveTime(DateUtil.parseDate(orderMaster.get("assignDate").asText()));
 
+            excelEntity.setOverdueDays(this.getOverdueDaysByContractCode(excelEntity.getContractCode(), tokenStr));
+
             result.add(excelEntity);
         }
 
         return result;
+    }
+
+    /**
+     * 通过合同编号获取逾期天数
+     */
+    public int getOverdueDaysByContractCode(String contractCode, String tokenStr)
+    {
+        String jsonStr = StrUtil.format("{\"applyNo\":\"{}\"}", contractCode);
+        CommonResult<JsonNode> yixinBody = invokeYixin.post("/visit/outsource/detail/repayInfo", tokenStr, jsonStr);
+        return yixinBody.getData().get("overdueDays").asInt();
     }
 
     /**

@@ -51,7 +51,12 @@ public class ExcelEntity
     private String pM;
     private String pN;
     private String pO;
-    private String pP;
+
+    /**
+     * 逾期天数
+     */
+    private Integer overdueDays;
+
     private String pQ;
     private String pR;
     private String pS;
