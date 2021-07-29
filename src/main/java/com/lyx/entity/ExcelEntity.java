@@ -102,7 +102,12 @@ public class ExcelEntity
     private DateTime giveTime;
 
     private String pAE;
-    private String pAF;
+
+    /**
+     * 备注
+     */
+    private String remark;
+
     private String pAG;
     private String pAH;
 }

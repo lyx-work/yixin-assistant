@@ -106,8 +106,6 @@ public class FunctionServiceImpl implements FunctionService
         return yixinBody;
     }
 
-
-
     /**
      * 获得所有的需要导出的主单
      */
@@ -153,8 +151,6 @@ public class FunctionServiceImpl implements FunctionService
 
         return orderMasterIdList;
     }
-
-
 
     /**
      * 输入：易鑫系统获得的主单
@@ -204,6 +200,7 @@ public class FunctionServiceImpl implements FunctionService
             excelEntity.setGiveTime(DateUtil.parseDate(orderMaster.get("assignDate").asText()));
 
             excelEntity.setOverdueDays(this.getOverdueDaysByContractCode(excelEntity.getContractCode(), tokenStr));
+            excelEntity.setRemark(StrUtil.format("派单人-{}", orderMaster.get("linkmanName").asText()));
 
             result.add(excelEntity);
         }
