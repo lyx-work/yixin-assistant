@@ -199,7 +199,7 @@ public class FunctionServiceImpl implements FunctionService
             excelEntity.setArea(this.getAreaByAddress(excelEntity.getProvince() + excelEntity.getCity() + excelEntity.getDetailAddress()));
             excelEntity.setGiveTime(DateUtil.parseDate(orderMaster.get("assignDate").asText()));
 
-            excelEntity.setOverdueDays(this.getOverdueDaysByContractCode(excelEntity.getContractCode(), tokenStr));
+            excelEntity.setOverdueDays(this.getOverdueDaysByContractCode(orderMaster.get("id").asText(), tokenStr));
             excelEntity.setRemark(StrUtil.format("派单人-{}", orderMaster.get("linkmanName").asText()));
 
             result.add(excelEntity);
@@ -209,11 +209,11 @@ public class FunctionServiceImpl implements FunctionService
     }
 
     /**
-     * 通过合同编号获取逾期天数
+     * 通过id获取逾期天数
      */
-    public int getOverdueDaysByContractCode(String contractCode, String tokenStr)
+    public int getOverdueDaysByContractCode(String id, String tokenStr)
     {
-        String jsonStr = StrUtil.format("{\"applyNo\":\"{}\"}", contractCode);
+        String jsonStr = StrUtil.format("{\"id\":\"{}\"}", id);
         CommonResult<JsonNode> yixinBody = invokeYixin.post("/visit/outsource/detail/repayInfo", tokenStr, jsonStr);
         return yixinBody.getData().get("overdueDays").asInt();
     }
