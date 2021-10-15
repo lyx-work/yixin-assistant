@@ -11,7 +11,7 @@ public class ConstantAndVar
     /**
      * 接口访问次数.
      */
-    public static long assCount = 989;
+    public static long assCount = 1129;
 
     static
     {
