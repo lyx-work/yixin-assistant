@@ -9,9 +9,11 @@ import cn.hutool.core.io.file.FileReader;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.lyx.common.CommonResult;
-import com.lyx.common.Constant;
+import com.lyx.common.ConstantAndVar;
 import com.lyx.config.InvokeYixinConfig;
 import com.lyx.entity.ExcelEntity;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -26,6 +28,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service("functionServiceImpl")
 public class FunctionServiceImpl implements FunctionService
@@ -38,12 +41,15 @@ public class FunctionServiceImpl implements FunctionService
     @Qualifier("restTemplate")
     private RestTemplate restTemplate;
 
+    @Autowired
+    private ObjectMapper oMapper;
+
 
 
     @Override
     public ResponseEntity export(String tokenStr)
     {
-        Constant.ASS_COUNT++;
+        ConstantAndVar.assCount++;
 
         // ①判断输入的tokenStr正不正确
         CommonResult trueTokenRep = this.isTrueToken(tokenStr);
@@ -111,16 +117,18 @@ public class FunctionServiceImpl implements FunctionService
      */
     private List<JsonNode> listNeedExportOrderMasterList(String tokenStr)
     {
-        List<String> omIdList = this.listNeedExportOrderMasterIdList(tokenStr);
+        List<JsonNode> orderMasterIdAndRegionList = this.listNeedExportOrderMasterIdList(tokenStr);
 
         List<JsonNode> orderMasterList = CollUtil.newArrayList();
-        for (String el : omIdList)
+        for (JsonNode el : orderMasterIdAndRegionList)
         {
-            String jsonData = StrUtil.format("{\"id\":\"{}\"}", el);
+            String jsonData = StrUtil.format("{\"id\":\"{}\"}", el.get("id").asText());
             CommonResult<JsonNode> yixinBody = invokeYixin.post("/visit/outsource/detail/taskDetail", tokenStr, jsonData);
             if (yixinBody.isSuccess())
             {
-                orderMasterList.add(yixinBody.getData());
+                JsonNode data = yixinBody.getData();
+                ((ObjectNode)data).put("region", el.get("region").asText());
+                orderMasterList.add(data);
             }
         }
 
@@ -128,9 +136,10 @@ public class FunctionServiceImpl implements FunctionService
     }
 
     /**
-     * 获得所有的需要导出的主单的id
+     * 获得所有的需要导出的主单的id与主单所在区域
+     * @return https://panoramic-mayonnaise-894.notion.site/a56c4c99168c465182bcf1928c81d3e7
      */
-    private List<String> listNeedExportOrderMasterIdList(String tokenStr)
+    private List<JsonNode> listNeedExportOrderMasterIdList(String tokenStr)
     {
         String jsonData = "{\"applyNo\":\"\",\"customerName\":\"\",\"pickUpCarCompany\":\"\",\"pickUpCarManager\":\"\",\"applyBeginTime\":\"\",\"applyUser\":\"\",\"status\":\"wait_distribute\",\"index\":1,\"pageSize\":300}";
         CommonResult<JsonNode> yixinBodyRep = invokeYixin.post("/visit/outsource/inside/pageQuery", tokenStr, jsonData);
@@ -143,10 +152,13 @@ public class FunctionServiceImpl implements FunctionService
         JsonNode data = yixinBodyRep.getData();
         JsonNode orderMasterList = data.at("/items");
 
-        List<String> orderMasterIdList = CollUtil.newArrayList();
+        List<JsonNode> orderMasterIdList = CollUtil.newArrayList();
         for (JsonNode el : orderMasterList)
         {
-            orderMasterIdList.add(el.get("id").asText());
+            ObjectNode node = oMapper.createObjectNode()
+                                    .put("id", el.get("id").asText())
+                                    .put("region", el.get("region").asText());
+            orderMasterIdList.add(node);
         }
 
         return orderMasterIdList;
@@ -174,7 +186,7 @@ public class FunctionServiceImpl implements FunctionService
 
             excelEntity.setContractCode(orderMaster.get("applyNo").asText());
             excelEntity.setCarCode(this.getCarCodeByContractCode(excelEntity.getContractCode(), tokenStr));
-            excelEntity.setBelongArea(this.getProvinceByCarCode(excelEntity.getCarCode()));
+            excelEntity.setBelongArea(this.getProvinceByYixinProvince(orderMaster.get("region").asText())); // 所属区域
 
             excelEntity.setServiceOb(orderMaster.get("customerName").asText());
             excelEntity.setToVisitName(excelEntity.getServiceOb());
@@ -229,149 +241,21 @@ public class FunctionServiceImpl implements FunctionService
     }
 
     /**
-     * 输入：车牌号
-     * 输出：省
+     * 输入：易鑫系统所属区域字符串
+     * 输出：所属区域的省
      */
-    private String getProvinceByCarCode(String carCode)
+    private String getProvinceByYixinProvince(String carCode)
     {
-        if (StrUtil.startWith(carCode, "京"))
+        Set<String> provinceMiniNameList = ConstantAndVar.PROVINCE_MAP.keySet();
+        for (String el : provinceMiniNameList)
         {
-            return "北京市";
-        }
-        if (StrUtil.startWith(carCode, "津"))
-        {
-            return "天津市";
-        }
-        if (StrUtil.startWith(carCode, "冀"))
-        {
-            return "河北省";
-        }
-        if (StrUtil.startWith(carCode, "晋"))
-        {
-            return "山西省";
-        }
-        if (StrUtil.startWith(carCode, "蒙"))
-        {
-            return "内蒙古自治区";
-        }
-        if (StrUtil.startWith(carCode, "辽"))
-        {
-            return "辽宁省";
-        }
-        if (StrUtil.startWith(carCode, "吉"))
-        {
-            return "吉林省";
-        }
-        if (StrUtil.startWith(carCode, "黑"))
-        {
-            return "黑龙江省";
-        }
-        if (StrUtil.startWith(carCode, "沪"))
-        {
-            return "上海市";
-        }
-        if (StrUtil.startWith(carCode, "苏"))
-        {
-            return "江苏省";
-        }
-        if (StrUtil.startWith(carCode, "浙"))
-        {
-            return "浙江省";
-        }
-        if (StrUtil.startWith(carCode, "皖"))
-        {
-            return "安徽省";
-        }
-        if (StrUtil.startWith(carCode, "闽"))
-        {
-            return "福建省";
-        }
-        if (StrUtil.startWith(carCode, "赣"))
-        {
-            return "江西省";
-        }
-        if (StrUtil.startWith(carCode, "鲁"))
-        {
-            return "山东省";
-        }
-        if (StrUtil.startWith(carCode, "豫"))
-        {
-            return "河南省";
-        }
-        if (StrUtil.startWith(carCode, "鄂"))
-        {
-            return "湖北省";
-        }
-        if (StrUtil.startWith(carCode, "湘"))
-        {
-            return "湖南省";
-        }
-        if (StrUtil.startWith(carCode, "粤"))
-        {
-            return "广东省";
-        }
-        if (StrUtil.startWith(carCode, "桂"))
-        {
-            return "广西壮族自治区";
-        }
-        if (StrUtil.startWith(carCode, "琼"))
-        {
-            return "海南省";
-        }
-        if (StrUtil.startWith(carCode, "渝"))
-        {
-            return "重庆市";
-        }
-        if (StrUtil.startWith(carCode, "川"))
-        {
-            return "四川省";
-        }
-        if (StrUtil.startWith(carCode, "黔"))
-        {
-            return "贵州省";
-        }
-        if (StrUtil.startWith(carCode, "滇"))
-        {
-            return "云南省";
-        }
-        if (StrUtil.startWith(carCode, "藏"))
-        {
-            return "西藏自治区";
-        }
-        if (StrUtil.startWith(carCode, "陕"))
-        {
-            return "陕西省";
-        }
-        if (StrUtil.startWith(carCode, "甘"))
-        {
-            return "甘肃省";
-        }
-        if (StrUtil.startWith(carCode, "青"))
-        {
-            return "青海省";
-        }
-        if (StrUtil.startWith(carCode, "宁"))
-        {
-            return "宁夏回族自治区";
-        }
-        if (StrUtil.startWith(carCode, "新"))
-        {
-            return "新疆维吾尔自治区";
-        }
-        if (StrUtil.startWith(carCode, "台"))
-        {
-            return "台湾省";
-        }
-        if (StrUtil.startWith(carCode, "港"))
-        {
-            return "香港特别行政区";
-        }
-        if (StrUtil.startWith(carCode, "澳"))
-        {
-            return "澳门特别行政区";
+            if (StrUtil.contains(carCode, el))
+            {
+                return ConstantAndVar.PROVINCE_MAP.get(el);
+            }
         }
 
-        return "未知";
+        return "获取失败，请手动填写";
     }
 
     /**

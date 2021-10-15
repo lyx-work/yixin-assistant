@@ -1,7 +1,7 @@
 package com.lyx.process.controller;
 
 import com.lyx.common.CommonResult;
-import com.lyx.common.Constant;
+import com.lyx.common.ConstantAndVar;
 import com.lyx.process.service.FunctionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,6 +26,6 @@ public class FunctionController
     @GetMapping("/getCount")
     public CommonResult getCount()
     {
-        return CommonResult.successData(Constant.ASS_COUNT);
+        return CommonResult.successData(ConstantAndVar.assCount);
     }
 }
