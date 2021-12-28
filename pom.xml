@@ -6,8 +6,8 @@
 						https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
-	<name>liqi-assit</name>
-	<description>李琪要的辅助程序</description>
+	<name>yixin-assistant</name>
+	<description>易鑫小助手</description>
 
 	<!-- 父项目 -->
 	<parent>
