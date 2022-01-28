@@ -19,7 +19,7 @@
 
 	<!-- 坐标 -->
 	<groupId>lyx.com</groupId>
-	<artifactId>liqi-assit</artifactId>
+	<artifactId>yixin-assistant</artifactId>
 	<version>1.2</version>
 
 	<properties>
