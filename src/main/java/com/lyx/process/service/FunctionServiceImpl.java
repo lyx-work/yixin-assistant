@@ -6,6 +6,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileReader;
+import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -61,7 +62,7 @@ public class FunctionServiceImpl implements FunctionService
         }
 
         // ②获得需要导出到excel的数据
-        List<JsonNode> orderMasterList = listNeedExportOrderMasterList(tokenStr);
+        List<JsonNode> orderMasterList = this.listNeedExportOrderMasterList(tokenStr);
         List<ExcelEntity> excelEntityList = CollUtil.newArrayList();
         for (JsonNode el : orderMasterList)
         {
@@ -71,6 +72,7 @@ public class FunctionServiceImpl implements FunctionService
         excelData.put("ocList", excelEntityList);
 
         // ③写入数据，生成新的文件
+        Console.log("生成文件");
         TemplateExportParams excelTemplate = new TemplateExportParams("template.xlsx");
         Workbook workbook = ExcelExportUtil.exportExcel(excelTemplate, excelData);
         File newExcelFile = FileUtil.file(FileUtil.getUserHomePath() + "/" + IdUtil.simpleUUID() + ".xlsx");
@@ -122,6 +124,7 @@ public class FunctionServiceImpl implements FunctionService
         List<JsonNode> orderMasterList = CollUtil.newArrayList();
         for (JsonNode el : orderMasterIdAndRegionList)
         {
+            Console.log("获取数据，{}", IdUtil.fastSimpleUUID());
             String jsonData = StrUtil.format("{\"id\":\"{}\"}", el.get("id").asText());
             CommonResult<JsonNode> yixinBody = invokeYixin.post("/visit/outsource/detail/taskDetail", tokenStr, jsonData);
             if (yixinBody.isSuccess())
@@ -180,6 +183,7 @@ public class FunctionServiceImpl implements FunctionService
         List<ExcelEntity> result = CollUtil.newArrayList();
         for (JsonNode oc : orderChildList)
         {
+            Console.log("转换数据，{}", IdUtil.fastSimpleUUID()); // TODO 删除 李艳兴
             ExcelEntity excelEntity = new ExcelEntity();
 
             excelEntity.setVisitType(orderMaster.get("reasonText").asText());
