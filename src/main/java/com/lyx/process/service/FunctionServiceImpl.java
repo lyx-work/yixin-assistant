@@ -50,8 +50,6 @@ public class FunctionServiceImpl implements FunctionService
     @Override
     public ResponseEntity export(String tokenStr)
     {
-        ConstantAndVar.assCount++;
-
         // ①判断输入的tokenStr正不正确
         CommonResult trueTokenRep = this.isTrueToken(tokenStr);
         if (!trueTokenRep.isSuccess())

@@ -8,11 +8,6 @@ public class ConstantAndVar
 {
     public static final Map<String, String> PROVINCE_MAP = MapUtil.newHashMap();
 
-    /**
-     * 接口访问次数.
-     */
-    public static long assCount = 1129;
-
     static
     {
         PROVINCE_MAP.put("河北", "河北省");

@@ -22,10 +22,4 @@ public class FunctionController
     {
         return functionService.export(tokenStr);
     }
-
-    @GetMapping("/getCount")
-    public CommonResult getCount()
-    {
-        return CommonResult.successData(ConstantAndVar.assCount);
-    }
 }
