@@ -70,7 +70,7 @@ public class FunctionServiceImpl implements FunctionService
         excelData.put("ocList", excelEntityList);
 
         // ③写入数据，生成新的文件
-        Console.log("生成文件");
+        // Console.log("生成文件"); // TODO 本地可以打开 李艳兴
         TemplateExportParams excelTemplate = new TemplateExportParams("template.xlsx");
         Workbook workbook = ExcelExportUtil.exportExcel(excelTemplate, excelData);
         File newExcelFile = FileUtil.file(FileUtil.getUserHomePath() + "/" + IdUtil.simpleUUID() + ".xlsx");
@@ -181,7 +181,7 @@ public class FunctionServiceImpl implements FunctionService
         List<ExcelEntity> result = CollUtil.newArrayList();
         for (JsonNode oc : orderChildList)
         {
-            Console.log("转换数据，{}", IdUtil.fastSimpleUUID()); // TODO 删除 李艳兴
+            // Console.log("转换数据，{}", IdUtil.fastSimpleUUID()); // TODO 本地可以打开 李艳兴
             ExcelEntity excelEntity = new ExcelEntity();
 
             excelEntity.setVisitType(orderMaster.get("reasonText").asText());
