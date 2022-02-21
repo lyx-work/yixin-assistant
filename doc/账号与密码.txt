@@ -1,3 +1,6 @@
 https://yun.yxqiche.com
 
 00liqi1 / yixin@123456
+
+
+不需要数据库.
