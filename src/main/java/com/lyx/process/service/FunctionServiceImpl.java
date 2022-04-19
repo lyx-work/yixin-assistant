@@ -181,7 +181,6 @@ public class FunctionServiceImpl implements FunctionService
         List<ExcelEntity> result = CollUtil.newArrayList();
         for (JsonNode oc : orderChildList)
         {
-            // Console.log("转换数据，{}", IdUtil.fastSimpleUUID()); // TODO 本地可以打开 李艳兴
             ExcelEntity excelEntity = new ExcelEntity();
 
             excelEntity.setVisitType(orderMaster.get("reasonText").asText());
