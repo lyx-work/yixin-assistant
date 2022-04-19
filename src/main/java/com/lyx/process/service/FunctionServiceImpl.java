@@ -29,6 +29,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 @Service("functionServiceImpl")
@@ -276,7 +277,7 @@ public class FunctionServiceImpl implements FunctionService
         {
             return StrUtil.EMPTY;
         }
-        if (body.get("count").asInt() == 0)
+        if (Objects.isNull(body.get("count")) || body.get("count").asInt() == 0)
         {
             return StrUtil.EMPTY;
         }
